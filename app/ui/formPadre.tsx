@@ -1,85 +1,103 @@
 'use client'
-import { useForm, FormProvider,useFormContext } from "react-hook-form"
-import { useState } from "react";
-import FormCredenziali from "./formCredenziali";
-import { watch } from "fs";
 
-export default function FormPadre(){
+import { useForm, FormProvider } from "react-hook-form"
+import { useState } from "react";
+
+import { formSchema } from "../lib/zod/form.schem";
+import { zodResolver } from "@hookform/resolvers/zod";
+import FormCredenziali from "./formCredenziali";
+
+export default function FormPadre() {
 
     const [showForms, setShowForms] = useState({
         credentalForm: false,
-        // form2: false,
-        // form3: false,
     });
 
     const closecredentalForm = () => {
         setShowForms(prev => ({ ...prev, credentalForm: false }));
     };
 
+    // ✅ Manteniamo methods
+    const methods = useForm({
+        resolver: zodResolver(formSchema)
+    });
 
-    const methods=useForm()
+    const { register, handleSubmit, formState: { errors }, watch } = methods;
 
-
-    
     const onSubmit = () => {
-        console.log("Dati inviati:", methods.watch());
+        console.log("Dati inviati:", watch());
     };
 
     return (
         <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)} className="w-full h-full flex flex-col gap-4 p-6 shadow-xl overflow-y-scroll">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-full h-full flex flex-col gap-4 p-6 shadow-xl overflow-y-scroll">
+
                 <h1 className="text-2xl font-bold mb-4 text-gray-800">Dati Anagrafici</h1>
 
+                {/* NOME */}
                 <input
                     type="text"
-                    id="name"
                     placeholder="Nome"
                     className="p-2 border border-black text-black rounded-md w-full"
-                    {...methods.register('name')}
+                    {...register('name')}
                 />
+                {errors.name && (
+                    <p className="text-red-600 text-sm">{errors.name.message}</p>
+                )}
 
+                {/* COGNOME */}
                 <input
                     type="text"
-                    id="surname"
                     placeholder="Cognome"
-                    {...methods.register('surname')}
                     className="p-2 border border-black text-black rounded-md w-full"
+                    {...register('surname')}
                 />
+                {errors.surname && (
+                    <p className="text-red-600 text-sm">{errors.surname.message}</p>
+                )}
 
+                {/* DATA DI NASCITA */}
                 <input
                     type="date"
-                    id="birthdate"
-                    {...methods.register('birthdate')}
                     className="p-2 border border-black text-black rounded-md w-full"
+                    {...register('birthdate')}
                 />
+                {errors.birthdate && (
+                    <p className="text-red-600 text-sm">{errors.birthdate.message}</p>
+                )}
 
+                {/* SESSO */}
                 <select
-                    id="gender"
                     className="p-2 border border-black text-black rounded-md w-full"
-                    {...methods.register('gender')}
+                    {...register('gender')}
                 >
                     <option value="">Seleziona sesso</option>
                     <option value="M">Maschile</option>
                     <option value="F">Femminile</option>
                     <option value="O">Altro</option>
                 </select>
+                {errors.gender && (
+                    <p className="text-red-600 text-sm">{errors.gender.message}</p>
+                )}
 
+                {/* CODICE FISCALE */}
                 <input
                     type="text"
-                    id="cf"
                     placeholder="Codice Fiscale"
-                    {...methods.register('cf')}
                     className="p-2 border border-black text-black rounded-md w-full"
+                    {...register('cf')}
                 />
+                {errors.cf && (
+                    <p className="text-red-600 text-sm">{errors.cf.message}</p>
+                )}
 
-                <div className="w-full h-auto flex items-center justify-end">
+                {/* SEZIONE CREDENZIALI */}
+                <div className="w-full flex items-center justify-end">
                     {!showForms.credentalForm && (
                         <button
                             type="button"
-                            onClick={() =>
-                                setShowForms(prev => ({ ...prev, credentalForm: true }))
-                            }
-                            className="mt-2 w-fit h-fit p-2 bg-green-400 text-black rounded-md hover:bg-green-500 transition"
+                            onClick={() => setShowForms(prev => ({ ...prev, credentalForm: true }))}
+                            className="mt-2 p-2 bg-green-400 text-black rounded-md hover:bg-green-500 transition"
                         >
                             Aggiungi credenziali
                         </button>
@@ -94,8 +112,8 @@ export default function FormPadre(){
                 >
                     Invia
                 </button>
+
             </form>
         </FormProvider>
-        
     );
 }
